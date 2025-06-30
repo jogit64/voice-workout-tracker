@@ -1,8 +1,6 @@
-
 import React, { useState } from "react";
 import { Mic } from "lucide-react";
 import { SpeechRecognition } from "@capacitor-community/speech-recognition";
-import { Capacitor } from "@capacitor/core";
 
 const RecordPage: React.FC = () => {
   const [recordedText, setRecordedText] = useState("");
@@ -20,17 +18,17 @@ const RecordPage: React.FC = () => {
         maxResults: 1,
       });
 
-      SpeechRecognition.addListener("speechRecognitionResult", (result) => {
+      // ✅ Remplacement correct de l'event
+      SpeechRecognition.addListener("partialResults", (result) => {
         if (result.matches && result.matches.length > 0) {
           setRecordedText(result.matches[0]);
         }
         setIsRecording(false);
       });
 
-      SpeechRecognition.addListener("speechRecognitionError", (err) => {
-        console.error("Erreur vocale :", err);
-        setIsRecording(false);
-      });
+      // ❌ L'ancien listener "speechRecognitionError" est invalide
+      // Tu peux le retirer ou écouter "listeningState" si besoin
+
     } catch (err) {
       console.error("Erreur démarrage micro :", err);
       setIsRecording(false);
@@ -51,7 +49,6 @@ const RecordPage: React.FC = () => {
 
   return (
     <div className="min-h-full flex flex-col justify-between p-6">
-      {/* Section principale */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-8">
         <div className="text-center space-y-3">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -62,7 +59,6 @@ const RecordPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Bouton micro principal */}
         <div className="flex flex-col items-center space-y-4">
           <button
             onClick={handleStart}
@@ -79,7 +75,6 @@ const RecordPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Résultat de transcription */}
         {recordedText && (
           <div className="w-full max-w-sm space-y-4 animate-fade-in">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -104,7 +99,6 @@ const RecordPage: React.FC = () => {
         )}
       </div>
 
-      {/* Section conseils en bas */}
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/30">
         <div className="flex items-start space-x-3">
           <div className="text-blue-500 text-lg flex-shrink-0">💡</div>
@@ -115,7 +109,7 @@ const RecordPage: React.FC = () => {
             <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1.5 leading-relaxed">
               <li>• Parlez clairement après le clic</li>
               <li>• Mentionnez le type et la quantité</li>
-              <li>• Ex: "J'ai fait 50 squats et couru 3km"</li>
+              <li>• Exemple : "J'ai fait 50 squats et couru 3km"</li>
             </ul>
           </div>
         </div>
